@@ -1,54 +1,33 @@
-# NBIS-WABI_ID
+Euterpe precatoria Mitochondrial Genome Assembly
 
-- For peer-review track projects, name the repository: NBIS-WABI_ID, where the WABI_ID = PI's first name initial(s), PI's surname, and the year and month (YYMM) of the application deadline
+This repository provides the code and methodology used to assemble the mitochondrial genome of the Amazonian palm Euterpe precatoria. Due to the high structural complexity and recombination activity typical of the Arecaceae family, this assembly involved a hybrid approach of automated toolsets and manual graph resolution.
 
-- E.g. NBIS-M_Bergö_1305
+🛠 Bioinformatic Implementation
 
-- While creating repo choose "Private"
+1. Read Filtering and Preparation
+We used minimap2 to pull mitochondrial-related reads and samtools to deduplicate them.
 
-- Go to repository "Settings" -> "Collaborators and Teams" -> "Add teams" -> type "Staff"
+Bash#
+Mapping against reference
+minimap2 -ax map-hifi [reference].fasta all_reads_palm.fastq.gz > [reference]_all_reads.sam
 
-- Give access to "Staff" team (Read, Write, etc.)
+# Deduplication and cleaning
+samtools view -b -F 4 [reference].sam | samtools sort -n -o sorted_name.bam
+samtools fixmate -m sorted_name.bam fixmate.bam
+samtools sort fixmate.bam -o sorted_pos.bam
+samtools markdup -r sorted_pos.bam cleaned.bam
+samtools fasta cleaned.bam > final_input_reads.fa
 
-- Invite PI and collaborators with Write access using usernames -> "Add people"
+2. De Novo Assembly
+The assembly was performed using Flye specifically tuned for HiFi data.
+Bash
 
-- [Setup the Confluence](https://scilifelab.atlassian.net/wiki/spaces/NBISINTRA/pages/2598764891/Creating+a+Confluence+Space+for+a+new+project)
+flye --pacbio-hifi final_input_reads.fa --o flye_assembly
 
-## Directory tree description 
+3. Manual Graph Curation
+The assembly graph was manually resolved in Bandage to navigate the recombination topology.Master Content Sequence: 1,268,308 bpExcluded Segments: edge_4 (identified as a NUMT).
 
-```
-NBIS-WABI_ID		# NBIS-WABI_ID named directory
-├──.devcontainer	# Codespaces cloud dev config
-├── code
-│   ├── scripts		# Standalone scripts
-│   ├── slurm		# Slurm scripts
-│   └── workflows	# Nextflow workflows
-├── docs
-│   ├── article		# Manuscript drafts
-│   ├── confluence	# Confluence publishing directory
-│   │   └── assets	# Placeholder for confluence publishing
-│   │   └── minutes	# Placeholder for confluence publishing
-│   │   └── slides	# Placeholder for confluence publishing
-│   ├── dashboards	# Quarto dashboards
-│   ├── logbook		# Code, figures, interpretation
-│   │   └── assets	# Figures for logbook
-│   ├── meetings	# Meeting notes
-│   └── slides		# Revealjs slides
-│       └── assets	# Figures for slides
-├── env			# Software environment/container definition files etc.
-│   └── bin		# Local binaries
-├── interim		# Intermediate data, not tracked
-├── processed		# Processed data, not tracked
-├── raw			# Links to raw data, not tracked
-└── scratch		# Non-essential files/sandbox, not tracked
-```
+4. Annotation
+Annotation was executed via the PMGA pipeline, incorporating tRNAscan-SE, ARAGORN, and Deepred-MT.
 
-## How to use this template
-
-`gh repo create` -> Create new repo on GitHub from template
-
-`gh repo clone <REPO>` -> Clone the new repo to local machine
-
-### Cloud development environment (update URL to the project repo)
-
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/NBISweden/CMK-NBIS-PRT-project-template)
+📊 Summary StatisticsFeatureCountUnique Genes76Protein-coding41tRNAs32rRNAs3Coverage746X
