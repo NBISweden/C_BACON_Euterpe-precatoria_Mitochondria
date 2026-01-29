@@ -1,0 +1,29 @@
+---
+title: "Running slides"
+author: "NBIS-XXXXX_XXXX"
+format:
+  revealjs:
+    incremental: true
+    output-file: output.html
+---
+
+# Slide 1
+
+Text
+
+::: aside
+Foot note on the html slide
+:::
+
+---
+
+```{python}
+#| echo: true
+#| code-line-numbers: "1|3"
+#| output-location: fragment
+print("Hello, world!")
+
+print("example code highlighting - doesn't work on confluence, only html")
+```
+
+# Slide 3
