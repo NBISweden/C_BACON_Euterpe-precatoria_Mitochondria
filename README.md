@@ -55,16 +55,31 @@ edge_5+, edge_12+, edge_1+, edge_14+, edge_16+, edge_7+, edge_10+, edge_18+, edg
 To validate the final 1,268,308 bp assembly, we mapped the original reads back to the curated master sequence to calculate depth and consistency.
 
 ```Bash
-# Map reads to the final assembly
-minimap2 -ax map-hifi E_precatoria_MT_final.fasta all_reads_palm.fastq.gz > validation.sam
+# 1. Map all original raw reads to the final curated assembly.
+# We use minimap2 with the HiFi preset for best accuracy.
+minimap2 -ax map-hifi Mito_Euprecatoria_22_10_25.fasta ../../ all_reads_palm.fastq.gz > final_mt_reads.sam
 
-# Sort and index
-samtools view -b validation.sam | samtools sort -o validation_sorted.bam
-samtools index validation_sorted.bam
+# 2. Convert SAM to BAM for processing efficiency.
+samtools view -b -S final_mt_reads.sam > final_mt_reads.bam
 
-# Calculate mean coverage depth
-samtools depth validation_sorted.bam > mt_depth.txt
-awk '{sum+=$3; count++} END {print "Mean Depth: ",sum/count}' mt_depth.txt
+# 3. Sort the BAM file by genomic position (required for calculating coverage).
+samtools sort final_mt_reads.bam -o final_mt_reads_sorted.bam
+
+# 4. Index the final sorted BAM file (required for quick data retrieval and viewing).
+samtools index final_mt_reads_sorted.bam
+
+# 1. Generate the depth file across the entire genome.
+# The output format is: ReferenceName | Position | Depth
+samtools depth final_mt_reads_sorted.bam > mt_depth.txt
+
+# 2. Calculate the average depth using basic command-line tools (awk).
+# This sums the depth column (column 3) and divides by the total number of sites.
+echo "Mean Coverage Depth:"
+awk '{sum+=$3; count++} END {print sum/count}' mt_depth.txt
+
+# Generates a comprehensive summary of read flags and counts.
+echo "Read Alignment Statistics (Samtools Flagstat):"
+samtools flagstat final_mt_reads_sorted.bam
 ```
 
 ## Genome Annotation
