@@ -1,7 +1,0 @@
-# Scheduled meetings {.unnumbered}
-
-|		Description		|		Date		|		Location		|
-|		:-----			|		:-----		|		:-----			|
-|		Kickoff meeting	|	YYYYMMDD-HHMM	|		Online: link	|
-
-### Notes

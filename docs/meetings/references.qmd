@@ -1,4 +1,0 @@
-# References (HTML only, not Confluence) {.unnumbered}
-
-::: {#refs}
-:::
